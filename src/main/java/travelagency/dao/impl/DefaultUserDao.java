@@ -16,8 +16,10 @@ import travelagency.modelsdata.TourData;
 import travelagency.modelsdata.UserData;
 
 public class DefaultUserDao implements UserDao {
-	// Запрос выводи все поля о пользователе по опред.айди
+	// Запрос выводит все поля о пользователе по опред.айди
 	private static final String SELECT_USER = "SELECT * FROM users WHERE user_id = ?";
+	// Запрос выводит пароль пользователя по емейлу 
+	private static final String SELECT_PASSWORD = "SELECT password FROM users WHERE mail = ?";
 	// Запрос выводи все туры пользователя по опред.айди пользователя
 	private static final String GET_TOURS_FOR_USER = "SELECT t.tour_id, t.tour_name, t.price, t.description, t.date_start, t.date_end, t.country_id2, t.meals, t.tour_operator FROM tours t \r\n"
 			+ "JOIN orders o ON t.tour_id = o.tour_id2\r\n" + "WHERE o.user_id2= ?;";
@@ -39,6 +41,8 @@ public class DefaultUserDao implements UserDao {
 		public static final String SELECT_CLIENT = "SELECT u.user_id, u.user_name, u.user_surname "
 				+ "FROM users u \r\n" + 
 				"JOIN roles r ON r.role_id=u.roleId WHERE r.role_id = 1;";
+		
+		public static final String DELETE_USER = "DELETE FROM users WHERE user_id =?";
 
 	public static final String URL = "jdbc:mysql://127.0.0.1:3306/touragency";
 	private static final String PARAMS = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8";
@@ -86,8 +90,32 @@ public class DefaultUserDao implements UserDao {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	@Override
+	public UserData getUserPassword(String mail) {
+		try {
+			UserData userData = null;
+
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			try (Connection conn = DriverManager.getConnection(URL + PARAMS, USER, PASSWORD);
+					PreparedStatement statement = conn.prepareStatement(SELECT_PASSWORD);) {
+
+				statement.setString(1, mail);
+				try (ResultSet rs = statement.executeQuery();) {
+					if (rs.next()) {
+						userData = new UserData();
+						userData.setPassword(rs.getString("password"));
+					}
+				}
+			}
+			return userData;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
 	}
+	
 
 	// ====================================Получаем Туры по айди пользователя=================================
 	@Override
@@ -123,36 +151,7 @@ public class DefaultUserDao implements UserDao {
 		}
 		return tours;
 	}
-	// ====================================Получаем Отели по айди города=================================
-	@Override
-	public HotelData getHotelById(int city_id) {
-		try {
-			HotelData hotelData = null;
-
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			try (Connection conn = DriverManager.getConnection(URL + PARAMS, USER, PASSWORD);
-					PreparedStatement statement = conn.prepareStatement(SELECT_HOTEL);) {
-
-				statement.setInt(1, city_id);
-				try (ResultSet rs = statement.executeQuery();) {
-					if (rs.next()) {
-						hotelData = new HotelData();
-						hotelData.setCity_id(rs.getInt("city_id"));
-						hotelData.setHotel_name(rs.getString("hotel_name"));
-						hotelData.setRoom(rs.getString("room"));
-						hotelData.setPlaces(rs.getInt("places"));
-						hotelData.setHotel_class(rs.getString("hotel_class"));
-
-					}
-
-				}
-			}
-			return hotelData;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-	}
+	
 	// ====================================Получаем айди и назв.страны по айди country_id=================================
 	@Override
 	public CountryData getCountryById(int country_id) {
@@ -253,6 +252,26 @@ public class DefaultUserDao implements UserDao {
 			return true;
 		}
 		
+		// Обновление данных пользователя
+		@Override
+		public boolean updateUser2(UserData userData) {
+			try (Connection conn = dbHelper.getConnection();
+					PreparedStatement statement = conn.prepareStatement(UPDATE_USER)) {
+				statement.setInt(7, userData.getUser_id());
+				statement.setString(1, userData.getUser_name());
+				statement.setString(2, userData.getUser_surname());
+				statement.setString(3, userData.getUser_date_of_birth());
+				statement.setString(4, userData.getMail());
+				statement.setString(5, userData.getPassword());
+				statement.setInt(6, userData.getRoleId());
+				statement.executeUpdate();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			return true;
+		}
+		
 		//Добавление пользователя
 		@Override
 		public boolean setUser(String user_name, String user_surname, String user_date_of_birth, 
@@ -273,6 +292,25 @@ public class DefaultUserDao implements UserDao {
 			}
 			return true;
 		}
+		
+		//Добавление пользователя
+				@Override
+				public boolean setUser2(UserData userData) {
+					try (Connection conn = dbHelper.getConnection();
+							PreparedStatement statement = conn.prepareStatement(INSERT_USER)) {
+						statement.setString(1, userData.getUser_name());
+						statement.setString(2, userData.getUser_surname());
+						statement.setString(3, userData.getUser_date_of_birth());
+						statement.setString(4, userData.getMail());
+						statement.setString(5, userData.getPassword());
+						statement.setInt(6, userData.getRoleId());
+						statement.executeUpdate();
+					} catch (Exception e) {
+						e.printStackTrace();
+						return false;
+					}
+					return true;
+				}
 
 		//Список клиентов
 		@Override
@@ -294,5 +332,17 @@ public class DefaultUserDao implements UserDao {
 			return users;
 		}
 
-	
+		@Override
+		public boolean deleteUserById(int user_id) {
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				try (Connection conn = DriverManager.getConnection(URL + PARAMS, USER, PASSWORD);
+						PreparedStatement statement = conn.prepareStatement(DELETE_USER);) {
+					statement.setInt(1, user_id);
+				}
+				return true;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 }

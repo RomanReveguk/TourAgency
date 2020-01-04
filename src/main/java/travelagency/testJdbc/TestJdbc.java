@@ -7,19 +7,24 @@ package travelagency.testJdbc;
 	import java.sql.SQLException;
 	import java.util.List;
 
+import travelagency.dao.HotelDao;
+import travelagency.dao.OrderDao;
 import travelagency.dao.TourDao;
 import travelagency.dao.UserDao;
+import travelagency.dao.impl.DefaultHotelDao;
+import travelagency.dao.impl.DefaultOrderDao;
 import travelagency.dao.impl.DefaultTourDao;
 import travelagency.dao.impl.DefaultUserDao;
 import travelagency.modelsdata.CityData;
 import travelagency.modelsdata.CountryData;
 import travelagency.modelsdata.HotelData;
+import travelagency.modelsdata.OrderData;
 import travelagency.modelsdata.TourData;
 import travelagency.modelsdata.UserData;
 
 	public class TestJdbc {
 		
-		// ============ Queries
+// ============ Queries
 		private static final String INSERT_USERS = "insert into users(user_id, user_name, user_surname, user_date_of_birth, mail,password,role) values(?,?,?,?,?,?,?)";
 		private static final String SELECT_USER = "SELECT * FROM users WHERE user_id = ?";
 		
@@ -48,22 +53,22 @@ import travelagency.modelsdata.UserData;
 			System.out.println();
 			
 //============================Выполняем запрос на INSERT в табл Users ==================================================================			
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			try (Connection conn = DriverManager.getConnection(URL + PARAMS, USER, PASSWORD); 
-
-			PreparedStatement statement = conn.prepareStatement(INSERT_USERS);) {
-				
-			
-				statement.setInt(1, 12);
-				statement.setString(2, "Monika");
-				statement.setString(3, "Fedotova");
-				statement.setString(4, "2001-10.10");
-				statement.setString(5, "fedotova@gmail.com");
-				statement.setString(6, "123");
-				statement.setString(7, "client");
-				statement.executeUpdate();
-			
-			}
+//			Class.forName("com.mysql.cj.jdbc.Driver");
+//			try (Connection conn = DriverManager.getConnection(URL + PARAMS, USER, PASSWORD); 
+//
+//			PreparedStatement statement = conn.prepareStatement(INSERT_USERS);) {
+//				
+//			
+//				statement.setInt(1, 12);
+//				statement.setString(2, "Monika");
+//				statement.setString(3, "Fedotova");
+//				statement.setString(4, "2001-10.10");
+//				statement.setString(5, "fedotova@gmail.com");
+//				statement.setString(6, "123");
+//				statement.setString(7, "client");
+//				statement.executeUpdate();
+//			
+//			}
 			
 //=====================Получаем все о пользователе через getUserById(*) =========================================================================
 			UserDao userDao = new DefaultUserDao();
@@ -72,10 +77,6 @@ import travelagency.modelsdata.UserData;
 			
 			List<TourData> toursForUser = userDao.getToursForUser(2);
 			System.out.println(toursForUser);
-			
-			
-			HotelData hotelData = userDao.getHotelById(2);
-			System.out.println(hotelData);
 			
 			CountryData countryData = userDao.getCountryById(2);
 			System.out.println(countryData);
@@ -105,6 +106,37 @@ import travelagency.modelsdata.UserData;
 			//Вывод всех туров цены которых в пределах от 1000 до 3000
 			List<TourData> toursPrice = tourDao.getToursBetweenPrice(1000, 3000);
 			System.out.println(toursPrice);
+			
+//////////////////////////////////////////////////////////////////////////////////////	
+			
+			HotelDao hotelDao = DefaultHotelDao.getInstance();
+			HotelData hotel = hotelDao.getHotelById(2);
+			System.out.println(hotel);
+			
+			List<HotelData> hotelsByClass = hotelDao.getHotelsByClass("5*");
+			System.out.println(hotelsByClass);
+
+			List<HotelData> hotelsFromCity = hotelDao.getHotelsFromCity(1);
+			System.out.println(hotelsFromCity);
+			
+			List<HotelData> hotelsByRoom= hotelDao.getHotelsByRoom("lux");
+			System.out.println(hotelsByRoom);
+
+			List<HotelData> hotelsByPlaces= hotelDao.getHotelsByPlaces(3);
+			System.out.println(hotelsByPlaces);
+			
+			System.out.println(hotelDao.updateHotel(4, 3,"Gatwik", "Delux Room", 2,"4*"));
+			
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+			
+			OrderDao orderDao = DefaultOrderDao.getInstance();
+//			System.out.println(orderDao.setOrder(1, 1, 2));
+			
+			OrderData order = orderDao.getOrderById(8);
+			System.out.println(order);
+			
+			List<OrderData> getAllOrders = orderDao.getAllOrders();
+			System.out.println(getAllOrders);
 		}
 
 	}

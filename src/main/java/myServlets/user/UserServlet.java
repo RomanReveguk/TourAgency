@@ -1,4 +1,4 @@
-package myServlets;
+package myServlets.user;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,27 +12,19 @@ import travelagency.dao.UserDao;
 import travelagency.dao.impl.DefaultUserDao;
 
 
-public class FirstServlet extends HttpServlet {
+public class UserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-   
-    public FirstServlet() {
-        super();
-    }
 
-	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 		UserDao userDao = DefaultUserDao.getInstance();
 		PrintWriter writer = response.getWriter();
-		int id = Integer.parseInt(request.getParameter("user_id"));
+		int userId = Integer.parseInt(request.getParameter("user_id"));
 		try {
-			writer.println(userDao.getUserById(id));
+			writer.println(userDao.getUserById(userId));
 		} finally {
 			writer.close();
 		}
 	}
-
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);

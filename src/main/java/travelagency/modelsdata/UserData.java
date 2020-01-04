@@ -53,6 +53,9 @@ public class UserData {
 		this.user_id = user_id;
 	}
 
+	public int getUser_id() {
+		return user_id;
+	}
 	public List<TourData> getTours() {
 		return tours;
 	}
