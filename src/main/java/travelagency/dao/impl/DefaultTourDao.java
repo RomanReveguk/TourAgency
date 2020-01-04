@@ -36,8 +36,6 @@ public class DefaultTourDao implements TourDao{
 			"WHERE t.date_start BETWEEN '?' AND '?'";
 	private static final String SELECT_TOUR_BETWEEN_PRICE = "SELECT * FROM tours t \r\n" + 
 			"WHERE t.price BETWEEN ? AND ?";
-	
-	
 
 	private static DefaultTourDao instance;
 	private DbHelper dbHelper;

@@ -1,6 +1,7 @@
 package travelagency.modelsdata;
 
 public class HotelData {
+	private int hotel_id;
 	private int city_id;
 	private String hotel_name;
 	private String room;
@@ -37,9 +38,18 @@ public class HotelData {
 	public void setHotel_class(String hotel_class) {
 		this.hotel_class = hotel_class;
 	}
+	
+	public int getHotel_id() {
+		return hotel_id;
+	}
+	
+	public void setHotel_id(int hotel_id) {
+		this.hotel_id = hotel_id;
+	}
 	@Override
 	public String toString() {
-		return "HotelData [city_id=" + city_id + ", hotel_name=" + hotel_name + ", room=" + room + ", places=" + places
-				+ ", hotel_class=" + hotel_class + "]";
+		return "HotelData [hotel_id=" + hotel_id + ", city_id=" + city_id + ", hotel_name=" + hotel_name + ", room="
+				+ room + ", places=" + places + ", hotel_class=" + hotel_class + "]";
 	}
+	
 }
